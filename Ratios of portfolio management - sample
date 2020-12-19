@@ -1,0 +1,160 @@
+# 1 - Calcul des indicateurs de gestions :
+
+    # 1 - 1 beta
+
+dico_beta_fonds = {}
+for code_fonds, perf_fonds, var_bench in zip(registre.keys(), registre.values(), dico_var_bench.values()):
+        perf_fonds = registre[code_fonds]
+        var_bench = dico_var_bench[code_fonds]
+        beta = np.cov(perf_fonds['perf'].dropna(),perf_fonds['perf_bench'].dropna())[0,1]/var_bench
+        dico_sim = {
+            beta
+        }
+        dico_beta_fonds[code_fonds] = dico_sim
+
+#DF_beta = pd.DataFrame(dico_beta_fonds.items()).T
+
+    # 1 - 2 sharpe
+
+dico_sharpe_fonds = {}
+for code_fonds, std_fonds in zip(dico_mean.keys(), dico_std.values()):
+        std_fonds = dico_std[code_fonds]
+        sharpe = (dico_mean[code_fonds] - dico_tmp_mean['valtauxn'])/std_fonds
+        dico_sim = {
+            'sharpe': sharpe
+        }
+        dico_sharpe_fonds[code_fonds] = dico_sim
+
+DF_sharpe = pd.DataFrame(dico_sharpe_fonds).T
+
+    # 1 - 3 treynor
+
+dico_treynor_fonds = {}
+for code_fonds, perf_fonds, var_bench in zip(registre.keys(), registre.values(), dico_var_bench.values()):
+        perf_fonds = registre[code_fonds]
+        var_fonds = dico_var[code_fonds]
+        beta = np.cov(perf_fonds['perf'].dropna(),perf_fonds['perf_bench'].dropna())[0,1]/var_bench
+        treynor = (dico_mean[code_fonds] - dico_tmp_mean['valtauxn'])/beta
+        dico_sim = {
+            'treynor': treynor
+        }
+        dico_treynor_fonds[code_fonds] = dico_sim
+
+DF_treynor = pd.DataFrame(dico_treynor_fonds).T
+
+    # 2 - 2 analyse du risque de perte :
+
+# définitions des CFD : seuils de confiance :
+ALPHA_99 = 0.01
+ALPHA_95 = 0.05
+ALPHA_90 = 0.1
+# nombre de simulation pour la Var et CVar par MonteCarlo
+N_SIMS = 500
+
+        # 2 2 1 = Value at risk paramétrique avec une distribution normale
+# Distribution Loi Normale
+z_99 = stats.norm.ppf(1 - ALPHA_99)
+z_95 = stats.norm.ppf(1 - ALPHA_95)
+z_90 = stats.norm.ppf(1 - ALPHA_90)
+
+dico_pvar_99 = {key: ecart_type * z_99 for (key, ecart_type) in dico_std.items()}
+dico_pvar_95 = {key: ecart_type * z_95 for (key, ecart_type) in dico_std.items()}
+dico_pvar_90 = {key: ecart_type * z_90 for (key, ecart_type) in dico_std.items()}
+
+dico_pvar_fonds = {
+    'pvar_99': dico_pvar_99,
+    'pvar_95': dico_pvar_95,
+    'pvar_90': dico_pvar_90
+}
+
+DF_pvar = pd.DataFrame(dico_pvar_fonds)
+
+
+#  2 2 2 = Value at risk historique
+
+dico_hvar_99 = {key: np.percentile(ddf['perf'].dropna(), 1) for (key, ddf) in registre.items()}
+dico_hvar_95 = {key: np.percentile(ddf['perf'].dropna(), 5) for (key, ddf) in registre.items()}
+dico_hvar_90 = {key: np.percentile(ddf['perf'].dropna(), 10) for (key, ddf) in registre.items()}
+
+dico_hvar_fonds = {
+    'hvar_99': dico_hvar_99,
+    'hvar_95': dico_hvar_95,
+    'hvar_90': dico_hvar_90
+}
+
+DF_hvar = pd.DataFrame(dico_hvar_fonds)
+
+#  2 2 3 = Value at risk montecarlo
+# VAR montecarlo
+N_SIMS = 500
+dico_simvar_fonds = {}
+
+for code_fonds, mean_fonds, std_fonds in zip(dico_mean.keys(), dico_mean.values(), dico_std.values()):
+    sim_perf = np.random.normal(mean_fonds, std_fonds, N_SIMS)
+    dico_sim = {
+        'sim_var_99': np.percentile(sim_perf, 1),
+        'sim_var_95': np.percentile(sim_perf, 5),
+        'sim_var_90': np.percentile(sim_perf, 10)
+    }
+    dico_simvar_fonds[code_fonds] = dico_sim
+
+DF_simvar = pd.DataFrame(dico_simvar_fonds).T
+
+
+# ## 2 3 analyse du risque de la perte extrême :
+# Expected Shortfall
+
+# 2 3 1 Conditional Value at risk historique :
+dico_hcvar_fonds = {}
+
+for code_fonds in registre:
+    perf_fonds = registre[code_fonds]
+    hcvar_99 = perf_fonds[perf_fonds['perf'] >= dico_hvar_fonds['hvar_99'][code_fonds]]['perf'].mean()
+    hcvar_95 = perf_fonds[perf_fonds['perf'] >= dico_hvar_fonds['hvar_95'][code_fonds]]['perf'].mean()
+    hcvar_90 = perf_fonds[perf_fonds['perf'] >= dico_hvar_fonds['hvar_90'][code_fonds]]['perf'].mean()
+    dico_hcvar = {
+        'hcvar_99': hcvar_99,
+        'hcvar_95': hcvar_95,
+        'hcvar_90': hcvar_90
+    }
+    dico_hcvar_fonds[code_fonds] = dico_hcvar
+
+DF_hcvar = pd.DataFrame(dico_hcvar_fonds).T
+
+# 2 3 2 Conditional Value at risk paramétrique avec une distribution normale
+dico_pcvar_fonds = {}
+
+for code_fonds in registre:
+    perf_fonds = registre[code_fonds]
+    pcvar_99 = perf_fonds[perf_fonds['perf'] >= dico_pvar_fonds['pvar_99'][code_fonds]]['perf'].mean()
+    pcvar_95 = perf_fonds[perf_fonds['perf'] >= dico_pvar_fonds['pvar_95'][code_fonds]]['perf'].mean()
+    pcvar_90 = perf_fonds[perf_fonds['perf'] >= dico_pvar_fonds['pvar_90'][code_fonds]]['perf'].mean()
+
+    dico_pcvar = {
+        'pcvar_99': pcvar_99,
+        'pcvar_95': pcvar_95,
+        'pcvar_90': pcvar_90
+    }
+    dico_pcvar_fonds[code_fonds] = dico_pcvar
+
+DF_pcvar = pd.DataFrame(dico_pcvar_fonds).T
+
+
+# 2 3 3 Conditional Value at risk simulée (Montecarlo)
+dico_simcvar_fonds = {}
+
+for code_fonds in registre:
+    perf_fonds = registre[code_fonds]
+    simcvar_99 = perf_fonds[perf_fonds['perf'] >= dico_simvar_fonds[code_fonds]['sim_var_99']]['perf'].mean()
+    simcvar_95 = perf_fonds[perf_fonds['perf'] >= dico_simvar_fonds[code_fonds]['sim_var_95']]['perf'].mean()
+    simcvar_90 = perf_fonds[perf_fonds['perf'] >= dico_simvar_fonds[code_fonds]['sim_var_90']]['perf'].mean()
+    dico_simcvar = {
+        'simcvar_99': simcvar_99,
+        'simcvar_95': simcvar_95,
+        'simcvar_90': simcvar_90
+    }
+    dico_simcvar_fonds[code_fonds] = dico_simcvar
+
+DF_simcvar = pd.DataFrame(dico_simcvar_fonds).T
+
+dataf = pd.concat([DF_pcvar, DF_hcvar, DF_pvar, DF_simvar, DF_simcvar, DF_hvar])
