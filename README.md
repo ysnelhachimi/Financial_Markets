@@ -14,4 +14,4 @@ En se basant sur la librairie standard de python ainsi que d’autres librairies
   -> List / dict : structures standards de Python
   -> DataFrame : structure issue de la librairie Pandas.
 
-La manipulation de la base de données se fait via SQL Alchemy qui est un ORM (object relational mapper), ce qui a permis d’automatiser les requêtes SQL et a facilité l’implémentation de la base de données ainsi que l’apport de modifications majeures sur la base de données.
+La manipulation de la base de données se fait via SQLAlchemy qui est un ORM (object relational mapper), ce qui a permis d’automatiser les requêtes SQL et a facilité l’implémentation de la base de données ainsi que l’apport de modifications majeures sur la base de données.
