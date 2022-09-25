@@ -10,19 +10,16 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
-#engine_lite = create_engine('sqlite:////Users/ysn/Projects/kanyon/data/Basefront.db')
 
-#engine_dbmin = create_engine('sqlite:////Users/ysn/Projects/old desktop/dbmin.db')
-engine_lite = create_engine("postgresql+psycopg2://yassine:ysn@127.0.0.1:5432/db_kanyon")
+engine_postgres = create_engine("postgresql+psycopg2://yassine:ysn@127.0.0.1:5432/db_kanyon")
 
 engine_sqlite = create_engine('sqlite:////Users/ysn/Projects/kanyon/data/Basefront.db')
 
-# engine_lite = create_engine('sqlite:////Users/ysn/Projects/kanyon/data/Basefront.db')
-# engine = create_engine("postgresql+psycopg2://yassine:ysn@127.0.0.1:5432/db_kanyon")
+
 
 def dbsession():
     # print(subclasses(Base))
-    Session = sessionmaker(bind=engine_lite)
+    Session = sessionmaker(bind=engine_postgres)
     session = Session()
     return session
 
