@@ -5,7 +5,8 @@ Site web transformant l'application de données/pricing marché marocain (packag
 
 - **Backend** : FastAPI (auth JWT, plans, abonnements, mur payant, paiement
   CMI/PayZone, API de données protégées).
-- **Frontend** : React (Vite) — *en cours*.
+- **Frontend** : React (Vite) — page tarifs, inscription/connexion, tableau de
+  bord des données, portail de gestion d'abonnement.
 
 ## Backend
 
@@ -49,6 +50,21 @@ CMI. En production, passer à `cmi` et renseigner `KWEB_CMI_CLIENT_ID` /
 ```bash
 cd webapp/backend && pytest
 ```
+
+## Frontend
+
+SPA React (Vite). En développement, les appels `/api` sont proxifiés vers le
+backend (`http://localhost:8000`).
+
+```bash
+cd webapp/frontend
+npm install
+npm run dev        # http://localhost:5173
+npm run build      # bundle de production dans dist/
+```
+
+Pages : `/` (tarifs), `/register`, `/login`, `/dashboard` (données, protégé),
+`/billing` (gestion d'abonnement), `/billing/success|failure` (retour paiement).
 
 ## Sécurité
 
