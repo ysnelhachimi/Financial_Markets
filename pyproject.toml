@@ -24,6 +24,9 @@ postgres = ["psycopg2-binary>=2.9"]
 scraping = ["selenium>=4.10", "webdriver-manager>=4.0"]
 dev = ["pytest>=7.0"]
 
+[project.scripts]
+kanyon = "kanyon.cli:main"
+
 [tool.setuptools.packages.find]
 include = ["kanyon*"]
 

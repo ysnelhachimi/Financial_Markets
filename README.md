@@ -13,6 +13,7 @@ adjudications), HCP (IPC), MEF/Trésor, Maroclear et ASFIM (fonds).
 
 ```
 kanyon/
+├── cli.py               Interface en ligne de commande (`kanyon ...`)
 ├── config.py            Configuration centralisée (variables d'environnement)
 ├── db/
 │   ├── base.py          Moteur SQLAlchemy, sessions, init_db()
@@ -50,6 +51,20 @@ exportez les variables d'environnement :
 | `KANYON_HEADLESS`     | Mode headless de Chrome (`1`/`0`)      | `1`                                                |
 
 ## Utilisation
+
+### En ligne de commande
+
+Après installation (`pip install -e .`), la commande `kanyon` est disponible :
+
+```bash
+kanyon init-db                                            # crée les tables
+kanyon import indice --debut 12/06/2021 --fin 08/07/2021  # indices
+kanyon import volume --debut 12/06/2021 --fin 08/07/2021  # volumes
+kanyon import compo  --debut 12/06/2021 --fin 08/07/2021  # composition
+kanyon import all    --debut 12/06/2021 --fin 08/07/2021  # les trois
+```
+
+### En Python
 
 Initialiser le schéma :
 
