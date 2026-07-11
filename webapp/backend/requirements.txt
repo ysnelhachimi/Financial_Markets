@@ -1,0 +1,13 @@
+# Backend FastAPI du site payant.
+fastapi>=0.110
+uvicorn[standard]>=0.27
+SQLAlchemy>=2.0
+pydantic>=2.6
+pydantic-settings>=2.1
+PyJWT>=2.8
+python-multipart>=0.0.9
+email-validator>=2.1
+pandas>=1.5
+# Le package `kanyon` (couche données/pricer) est installé depuis la racine du dépôt :
+#   pip install -e ..
+# Pour PostgreSQL : psycopg2-binary>=2.9
