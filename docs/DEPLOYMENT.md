@@ -57,7 +57,29 @@ Peupler la base :
   composition) et import de la courbe BKAM / du référentiel Maroclear, planifiés
   quotidiennement.
 
-## 6. Sauvegardes & supervision
+## 6. Tâches planifiées (cron / worker)
+
+- **Renouvellement des abonnements** — quotidien :
+  ```bash
+  cd backend && python -m app.jobs.renewals
+  ```
+  Passe les abonnements échus en `canceled` (si annulés), renouvelle
+  automatiquement les plans gratuits, et bascule les plans payants en
+  `past_due` (à charger via CMI si la tokenisation est active).
+
+- **Import de la courbe BKAM** — quotidien (jour ouvré) :
+  ```python
+  from kanyon.imports.bkam_courbe import import_courbe_bam
+  import_courbe_bam("2025-07-01")   # alimente la table bkam_courbe -> pricer
+  ```
+
+Exemple d'entrées `crontab` :
+```
+0 2 * * *  cd /app/backend && python -m app.jobs.renewals
+30 19 * * 1-5  python -c "import datetime as dt; from kanyon.imports.bkam_courbe import import_courbe_bam; import_courbe_bam(dt.date.today())"
+```
+
+## 7. Sauvegardes & supervision
 
 - Sauvegardes régulières de PostgreSQL (données + abonnements = actifs critiques).
 - Supervision de `/api/health` et des logs backend.
