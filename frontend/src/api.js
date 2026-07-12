@@ -56,6 +56,22 @@ export const api = {
   },
   priceBond: (bond) => request("/pricer/price", { method: "POST", body: bond }),
   tenors: (date_marche) => request(`/pricer/tenors?date_marche=${date_marche}`),
+  factsheetHtml: async (body) => {
+    const headers = { "Content-Type": "application/json" };
+    const token = getToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const resp = await fetch("/api/reporting/factsheet", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const err = new Error("Erreur de génération de la fiche");
+      err.status = resp.status;
+      throw err;
+    }
+    return resp.text();
+  },
   strategies: () => request("/portfolio/strategies"),
   optimize: (body) => request("/portfolio/optimize", { method: "POST", body }),
   stress: (body) => request("/portfolio/stress", { method: "POST", body }),

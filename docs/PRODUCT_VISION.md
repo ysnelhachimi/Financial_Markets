@@ -69,7 +69,7 @@ naturelle → revenu croissant par client).
 | **M6** | **Stress testing** | Chocs de taux (translation/pentification), chocs actions, VaR/CVaR stressées | ✅ livré (`kanyon.portfolio.stress`) |
 | **M7** | **Ratios de gestion & risque** | Sharpe, Treynor, bêta, VaR (paramétrique/historique/Monte-Carlo), CVaR | ✅ livré (`kanyon.analytics`) |
 | **M8** | **Réglementation & ratios prudentiels AMMC** | Division des risques, emprise, sensibilité, liquidité — **contrôle automatique** | ✅ livré (`kanyon.portfolio.compliance`) |
-| **M9** | **Reporting / factsheets** | Fiches de fonds, reportings périodiques, exports | 🔜 |
+| **M9** | **Reporting / factsheets** | Fiches de fonds imprimables (HTML/PDF), allocation, stress, conformité | ✅ livré (`kanyon.reporting`) |
 
 > **M8 est l'argument de vente n°1** : personne ne vend au Maroc de la conformité
 > OPCVM **intégrée au calcul**. C'est ce qui justifie le prix et fidélise.

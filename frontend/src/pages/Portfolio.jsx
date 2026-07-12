@@ -68,6 +68,29 @@ export default function Portfolio() {
     if (res) setCompliance(res);
   };
 
+  const generateFactsheet = async () => {
+    const html = await run(() =>
+      api.factsheetHtml({
+        fund_name: "Portefeuille Kanyon",
+        as_of: new Date().toISOString().slice(0, 10),
+        category: "Diversifié",
+        holdings: holdings.map((h) => ({
+          ticker: h.ticker,
+          issuer: h.issuer,
+          weight: h.weight / 100,
+          asset_class: "obligataire",
+        })),
+        metrics: optResult
+          ? { volatility: optResult.volatility, sharpe: optResult.sharpe, total_return: optResult.expected_return }
+          : {},
+      })
+    );
+    if (html) {
+      const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+      window.open(url, "_blank");
+    }
+  };
+
   const updateAsset = (i, field) => (e) => {
     const next = [...assets];
     next[i] = { ...next[i], [field]: field === "ticker" ? e.target.value : parseFloat(e.target.value) };
@@ -163,7 +186,10 @@ export default function Portfolio() {
             </tbody>
           </table>
         </div>
-        <div className="toolbar"><button className="btn btn-small" onClick={runCompliance}>Contrôler</button></div>
+        <div className="toolbar">
+          <button className="btn btn-small" onClick={runCompliance}>Contrôler</button>
+          <button className="btn btn-small btn-outline" onClick={generateFactsheet}>Générer la fiche (PDF imprimable)</button>
+        </div>
         {compliance && (
           <div>
             <p><strong style={{ color: compliance.compliant ? "#38b27b" : "#e5484d" }}>
