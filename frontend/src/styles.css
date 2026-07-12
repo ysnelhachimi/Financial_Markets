@@ -110,3 +110,6 @@ thead th { background: var(--panel-2); position: sticky; top: 0; }
 .kv { list-style: none; padding: 0; margin: 1rem 0 0; }
 .kv li { display: flex; justify-content: space-between; padding: .45rem 0; border-bottom: 1px dashed var(--border); }
 .kv span { color: var(--muted); }
+
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.card h3 { margin-top: 0; }

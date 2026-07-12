@@ -9,6 +9,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Pricer from "./pages/Pricer.jsx";
+import Portfolio from "./pages/Portfolio.jsx";
 import Billing from "./pages/Billing.jsx";
 import BillingResult from "./pages/BillingResult.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
             />
             <Route path="pricer" element={<ProtectedRoute><Pricer /></ProtectedRoute>} />
+            <Route path="portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
           </Route>
         </Routes>
       </AuthProvider>

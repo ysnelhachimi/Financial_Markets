@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.database import init_db
-from app.routers import admin, auth, billing, market, plans, pricer
+from app.routers import admin, auth, billing, market, plans, portfolio, pricer
 
 settings = get_settings()
 
@@ -39,6 +39,7 @@ app.include_router(plans.router)
 app.include_router(billing.router)
 app.include_router(market.router)
 app.include_router(pricer.router)
+app.include_router(portfolio.router)
 app.include_router(admin.router)
 
 

@@ -63,12 +63,12 @@ naturelle → revenu croissant par client).
 |---|---|---|---|
 | **M1** | **Données de marché** | MASI/sectoriels, volumes, composition, monétaire (MONIA/TMP/taux directeur), courbe BKAM | ✅ livré |
 | **M2** | **Pricer taux & obligataire** | Interpolation courbe (monétaire/actuarielle), coupons, sensibilité, prix pied/plein de coupon | ✅ livré |
-| **M3** | **Construction de portefeuille** | Portefeuille cible entre **deux courbes** (scénarios de taux) ou entre **paniers d'actions** ; optimisation sous contraintes | 🔜 spec ci-dessous |
-| **M4** | **Stratégies par catégorie OPCVM** | Règles d'allocation propres à **Actions, Diversifié, OMLT, OCT, Monétaire** | 🔜 |
-| **M5** | **Backtesting** | Rejeu historique d'une stratégie, courbe de performance, indicateurs | 🔜 |
-| **M6** | **Stress testing** | Chocs de taux (translation/pentification), chocs actions, VaR/CVaR stressées | 🔜 |
+| **M3** | **Construction de portefeuille** | Portefeuille cible entre **deux courbes** (scénarios de taux) ou entre **paniers d'actions** ; optimisation sous contraintes | ✅ livré (`kanyon.portfolio.construction`) |
+| **M4** | **Stratégies par catégorie OPCVM** | Règles d'allocation propres à **Actions, Diversifié, OMLT, OCT, Monétaire** | ✅ livré (`kanyon.portfolio.strategies`) |
+| **M5** | **Backtesting** | Rejeu historique d'une stratégie, courbe de performance, indicateurs | ✅ livré (`kanyon.portfolio.backtest`) |
+| **M6** | **Stress testing** | Chocs de taux (translation/pentification), chocs actions, VaR/CVaR stressées | ✅ livré (`kanyon.portfolio.stress`) |
 | **M7** | **Ratios de gestion & risque** | Sharpe, Treynor, bêta, VaR (paramétrique/historique/Monte-Carlo), CVaR | ✅ livré (`kanyon.analytics`) |
-| **M8** | **Réglementation & ratios prudentiels AMMC** | Division des risques, emprise, sensibilité, liquidité — **contrôle automatique** | 🔜 (le cœur différenciant) |
+| **M8** | **Réglementation & ratios prudentiels AMMC** | Division des risques, emprise, sensibilité, liquidité — **contrôle automatique** | ✅ livré (`kanyon.portfolio.compliance`) |
 | **M9** | **Reporting / factsheets** | Fiches de fonds, reportings périodiques, exports | 🔜 |
 
 > **M8 est l'argument de vente n°1** : personne ne vend au Maroc de la conformité

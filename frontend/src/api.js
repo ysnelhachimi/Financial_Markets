@@ -56,4 +56,8 @@ export const api = {
   },
   priceBond: (bond) => request("/pricer/price", { method: "POST", body: bond }),
   tenors: (date_marche) => request(`/pricer/tenors?date_marche=${date_marche}`),
+  strategies: () => request("/portfolio/strategies"),
+  optimize: (body) => request("/portfolio/optimize", { method: "POST", body }),
+  stress: (body) => request("/portfolio/stress", { method: "POST", body }),
+  compliance: (body) => request("/portfolio/compliance", { method: "POST", body }),
 };
