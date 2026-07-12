@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kanyon"
+version = "0.3.0"
+description = "Données et pricing obligataire des marchés financiers marocains (extraction, stockage, analytics, pricer)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Proprietary" }
+dependencies = [
+    "SQLAlchemy>=2.0",
+    "pandas>=1.5",
+    "numpy>=1.23",
+    "scipy>=1.9",
+    "requests>=2.28",
+    "beautifulsoup4>=4.11",
+    "html5lib>=1.1",
+    "python-dateutil>=2.8",
+]
+
+[project.optional-dependencies]
+postgres = ["psycopg2-binary>=2.9"]
+scraping = ["selenium>=4.10", "webdriver-manager>=4.0"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+kanyon = "kanyon.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["kanyon*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
