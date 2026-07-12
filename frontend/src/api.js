@@ -54,4 +54,6 @@ export const api = {
     const qs = new URLSearchParams(params).toString();
     return request(`/market/${resource}?${qs}`);
   },
+  priceBond: (bond) => request("/pricer/price", { method: "POST", body: bond }),
+  tenors: (date_marche) => request(`/pricer/tenors?date_marche=${date_marche}`),
 };

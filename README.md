@@ -1,120 +1,94 @@
-# Kanyon — données des marchés financiers marocains
+# Kanyon Markets
 
-Kanyon couvre l'ensemble de la chaîne de traitement des données de marché
-marocaines : **extraction** (web scraping des sources publiques), **stockage**
-(SQLAlchemy / PostgreSQL) et **manipulation** (pandas), jusqu'au calcul
-d'**indicateurs de gestion de portefeuille**.
+**Plateforme SaaS de données et de pricing obligataire des marchés financiers
+marocains.** Données MASI, courbe des taux BKAM et **pricer obligataire**
+professionnel, accessibles par abonnement mensuel (paiement CMI / PayZone en
+dirham).
 
-Sources couvertes : Bourse de Casablanca (indice MASI, indices sectoriels,
-composition, volumes), Bank Al-Maghrib (taux directeur, MONIA, TMP, courbes,
-adjudications), HCP (IPC), MEF/Trésor, Maroclear et ASFIM (fonds).
+> Monorepo prêt à déployer : package de calcul `kanyon`, API FastAPI, frontend
+> React et stack Docker complète.
 
-## Structure
+---
+
+## Proposition de valeur
+
+- **Données de marché** : indices MASI et sectoriels, volumes, composition,
+  marché monétaire (MONIA, TMP, taux directeur), courbe des taux.
+- **Pricer obligataire** : interpolation de la courbe BKAM (conventions
+  monétaire/actuarielle), coupons, coupon couru, prix pied de coupon et prix
+  plein — le cœur de valeur, réservé aux abonnés.
+- **Monétisation intégrée** : plans mensuels (gratuit / premium / pro),
+  essai gratuit, mur payant, paiement récurrent CMI, portail d'abonnement.
+
+## Architecture
 
 ```
-kanyon/
-├── cli.py               Interface en ligne de commande (`kanyon ...`)
-├── config.py            Configuration centralisée (variables d'environnement)
-├── db/
-│   ├── base.py          Moteur SQLAlchemy, sessions, init_db()
-│   ├── models.py        Modèles ORM (toutes les tables)
-│   └── queries.py       Requêtes de lecture -> pandas.DataFrame
-├── helpers/
-│   └── parsing.py       Conversions dates / nombres / texte
-├── imports/
-│   ├── masi_indice.py   Extraction des indices
-│   ├── masi_volume.py   Extraction des volumes par valeur
-│   └── masi_compo.py    Extraction de la composition (pondérations)
-└── analytics/
-    └── ratios.py        Bêta, Sharpe, Treynor, VaR, Expected Shortfall
-tests/                   Tests unitaires (pytest)
+kanyon-markets/
+├── packages/kanyon/   Package Python : données (ORM, requêtes) + pricer + analytics
+├── backend/           API FastAPI : auth JWT, abonnements, paiement CMI, endpoints protégés
+├── frontend/          SPA React (Vite) : tarifs, dashboard, pricer, portail d'abonnement
+├── scripts/           Seed de données de démonstration
+├── docker-compose.yml PostgreSQL + backend + frontend
+└── docs/              Architecture & déploiement
 ```
 
-## Installation
+Détails : [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+## Démarrage rapide (Docker)
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-# ou, en package installable :
-pip install -e ".[postgres,scraping,dev]"
+cp .env.example .env          # adapter le mot de passe DB et la clé secrète
+docker compose up --build
 ```
 
-## Configuration
+- Frontend : http://localhost:8080
+- API + documentation interactive : http://localhost:8000/docs
 
-Aucun secret n'est codé en dur. Copiez `.env.example` en `.env` et adaptez, ou
-exportez les variables d'environnement :
-
-| Variable              | Rôle                                   | Défaut                                             |
-|-----------------------|----------------------------------------|----------------------------------------------------|
-| `KANYON_DATABASE_URL` | URL SQLAlchemy de la base              | `postgresql+psycopg2://localhost:5432/db_kanyon`   |
-| `KANYON_DOWNLOAD_DIR` | Répertoire des fichiers téléchargés    | `./data/masi_files`                                |
-| `KANYON_HEADLESS`     | Mode headless de Chrome (`1`/`0`)      | `1`                                                |
-
-## Utilisation
-
-### En ligne de commande
-
-Après installation (`pip install -e .`), la commande `kanyon` est disponible :
+Amorcer des données de démonstration (courbe, titres, indices) :
 
 ```bash
-kanyon init-db                                            # crée les tables
-kanyon import indice --debut 12/06/2021 --fin 08/07/2021  # indices
-kanyon import volume --debut 12/06/2021 --fin 08/07/2021  # volumes
-kanyon import compo  --debut 12/06/2021 --fin 08/07/2021  # composition
-kanyon import all    --debut 12/06/2021 --fin 08/07/2021  # les trois
+docker compose exec backend python /app/scripts/seed_demo.py
+# ou en local : KANYON_DATABASE_URL=... python scripts/seed_demo.py
 ```
 
-### En Python
+## Démarrage en local (sans Docker)
 
-Initialiser le schéma :
+```bash
+# 1) Package de calcul + backend
+pip install -e "packages/kanyon[postgres]"
+pip install -r backend/requirements.txt
+cp backend/.env.example backend/.env
+(cd backend && uvicorn app.main:app --reload)      # http://localhost:8000
 
-```python
-from kanyon.db import init_db
-init_db()
+# 2) Frontend
+cd frontend && npm install && npm run dev           # http://localhost:5173
 ```
 
-Importer des données (format de date : `dd/mm/YYYY`, import incrémental) :
+En développement, `KWEB_PAYMENT_PROVIDER=fake` permet de dérouler tout le
+parcours d'abonnement sans identifiants CMI.
 
-```python
-from kanyon.imports.masi_indice import extract_implement_indice
-from kanyon.imports.masi_volume import extract_implement_volume
-from kanyon.imports.masi_compo import extract_implement_compo
+## Parcours utilisateur (vendable de bout en bout)
 
-extract_implement_indice("12/06/2021", "08/07/2021")
-extract_implement_volume("12/06/2021", "08/07/2021")
-extract_implement_compo("12/06/2021", "08/07/2021")
-```
-
-Interroger la base (retourne des `DataFrame`) :
-
-```python
-from kanyon.db.queries import query_masi_indice, query_marche_monetaire
-
-df_indice = query_masi_indice("2021-06-12", "2021-07-08")
-df_mm = query_marche_monetaire("2021-06-12", "2021-07-08")
-```
-
-Calculer les indicateurs de gestion :
-
-```python
-from kanyon.analytics import compute_indicators
-
-indicateurs = compute_indicators(
-    registre=registre,             # {code_fonds: DataFrame[perf, perf_bench]}
-    variances_bench=variances,
-    means=means, stds=stds,
-    risk_free=0.02,
-)
-```
+1. Inscription → essai gratuit automatique.
+2. Choix d'une formule → paiement CMI (redirection signée) → activation.
+3. Accès aux données et au pricer derrière le mur payant.
+4. Gestion / annulation de l'abonnement depuis le portail.
 
 ## Tests
 
 ```bash
-pytest
+pytest -q packages/kanyon      # données + pricer
+(cd backend && pytest -q)      # API, abonnements, pricer
+(cd frontend && npm run build) # build de production
 ```
 
-## Notes techniques
+## Passage en production
 
-- **ORM** : SQLAlchemy 2.0, un unique moteur configurable via l'environnement.
-- **Scraping** : Selenium 4 (`webdriver-manager` gère le pilote Chrome).
-- **Import incrémental** : seules les dates manquantes en base sont récupérées.
+Voir [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) : identifiants marchands CMI,
+clé secrète, base PostgreSQL managée, renouvellement mensuel des abonnements,
+peuplement des données via `kanyon.imports`.
+
+---
+
+© Kanyon Markets — logiciel **propriétaire**. Tous droits réservés. Voir
+[`LICENSE`](LICENSE).

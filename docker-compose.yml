@@ -1,0 +1,50 @@
+# Stack complète : PostgreSQL + backend FastAPI + frontend (nginx).
+#   cp .env.example .env   puis   docker compose up --build
+# Frontend : http://localhost:8080   |   API : http://localhost:8000/docs
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kanyon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kanyon}
+      POSTGRES_DB: ${POSTGRES_DB:-kanyon}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kanyon}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      KWEB_SECRET_KEY: ${KWEB_SECRET_KEY:-change-me-in-production}
+      KWEB_PAYMENT_PROVIDER: ${KWEB_PAYMENT_PROVIDER:-fake}
+      KWEB_CMI_CLIENT_ID: ${KWEB_CMI_CLIENT_ID:-}
+      KWEB_CMI_STORE_KEY: ${KWEB_CMI_STORE_KEY:-}
+      KWEB_TRIAL_DAYS: ${KWEB_TRIAL_DAYS:-14}
+      KWEB_CORS_ORIGINS: '["http://localhost:8080"]'
+      KWEB_FRONTEND_BASE_URL: http://localhost:8080
+      KWEB_PUBLIC_BASE_URL: http://localhost:8000
+      KWEB_DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-kanyon}:${POSTGRES_PASSWORD:-kanyon}@db:5432/${POSTGRES_DB:-kanyon}
+      KANYON_DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-kanyon}:${POSTGRES_PASSWORD:-kanyon}@db:5432/${POSTGRES_DB:-kanyon}
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:

@@ -1,4 +1,5 @@
-"""Tests de bout en bout de l'API (auth, plans, mur payant, paiement factice)."""
+"""Tests de bout en bout de l'API (auth, plans, mur payant, paiement, pricer)."""
+import pytest
 
 
 def test_health(client):
@@ -69,6 +70,44 @@ def test_paiement_premium_factice(auth_client):
     assert auth_client.get(
         "/api/market/courbe", params={"date_marche": "2021-07-01"}
     ).status_code == 200
+
+
+def test_pricer_price_obligation_au_pair(auth_client):
+    # Le pricer exige un abonnement : on active d'abord le plan gratuit.
+    auth_client.post("/api/billing/subscribe", json={"plan_code": "free"})
+    resp = auth_client.post(
+        "/api/pricer/price",
+        json={
+            "date_valeur": "2021-06-15",
+            "date_emission": "2015-06-15",
+            "date_jouissance": "2015-06-15",
+            "date_echeance": "2025-06-15",
+            "taux_facial": 0.03,
+            "taux_courbe": 0.03,
+            "nominal": 100,
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["price"] == pytest.approx(100.0, abs=0.5)
+    assert body["type"] == "obligation_ordinaire"
+
+
+def test_pricer_exige_abonnement(auth_client):
+    # Sans abonnement actif (essai désactivé en test) => 402.
+    resp = auth_client.post(
+        "/api/pricer/price",
+        json={
+            "date_valeur": "2021-06-15",
+            "date_emission": "2015-06-15",
+            "date_jouissance": "2015-06-15",
+            "date_echeance": "2025-06-15",
+            "taux_facial": 0.03,
+            "taux_courbe": 0.03,
+            "nominal": 100,
+        },
+    )
+    assert resp.status_code == 402
 
 
 def test_callback_signature_invalide_refuse(auth_client):

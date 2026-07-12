@@ -64,6 +64,32 @@ def sanitize_float(value: str) -> float:
     return float(text)
 
 
+def add_years(d: dt.date, years: int) -> dt.date:
+    """Retourne la date ``d`` décalée de ``years`` années.
+
+    Conserve le même jour/mois dans l'année cible s'il existe, sinon décale au
+    lendemain (29 février -> 1er mars). Indispensable au calcul des dates de
+    coupon et des tenors dans le pricer.
+
+    Args:
+        d: Date de départ.
+        years: Nombre d'années à ajouter (peut être négatif).
+
+    Returns:
+        La date décalée.
+    """
+    try:
+        return d.replace(year=d.year + years)
+    except ValueError:
+        # 29 février d'une année non bissextile.
+        return d + (dt.date(d.year + years, 1, 1) - dt.date(d.year, 1, 1))
+
+
+def add_days(d: dt.date, days: int) -> dt.date:
+    """Retourne la date ``d`` décalée de ``days`` jours."""
+    return d + dt.timedelta(days=days)
+
+
 def upper_string(value: Optional[str]) -> Optional[str]:
     """Normalise une chaîne : espaces rognés et majuscules.
 

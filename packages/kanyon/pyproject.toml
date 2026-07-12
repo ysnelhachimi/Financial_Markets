@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kanyon"
-version = "0.2.0"
-description = "Accès aux données des marchés financiers marocains : extraction, stockage et manipulation."
+version = "0.3.0"
+description = "Données et pricing obligataire des marchés financiers marocains (extraction, stockage, analytics, pricer)."
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = { text = "Proprietary" }
 dependencies = [
     "SQLAlchemy>=2.0",
     "pandas>=1.5",
@@ -17,6 +17,7 @@ dependencies = [
     "requests>=2.28",
     "beautifulsoup4>=4.11",
     "html5lib>=1.1",
+    "python-dateutil>=2.8",
 ]
 
 [project.optional-dependencies]

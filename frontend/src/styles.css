@@ -100,3 +100,13 @@ th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--
 thead th { background: var(--panel-2); position: sticky; top: 0; }
 
 .sub-summary { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+
+.pricer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
+@media (max-width: 720px) { .pricer-grid { grid-template-columns: 1fr; } }
+.pricer-form { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.pricer-form button { grid-column: 1 / -1; }
+.pricer-result { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; }
+.result-price { font-size: 2.6rem; font-weight: 800; color: var(--accent-2); }
+.kv { list-style: none; padding: 0; margin: 1rem 0 0; }
+.kv li { display: flex; justify-content: space-between; padding: .45rem 0; border-bottom: 1px dashed var(--border); }
+.kv span { color: var(--muted); }

@@ -8,19 +8,21 @@ dist/
 .venv/
 venv/
 env/
-
-# Tests / couverture
 .pytest_cache/
 .coverage
-htmlcov/
 
-# Données locales / bases / téléchargements
-data/
+# Node / frontend
+node_modules/
+frontend/dist/
+.vite/
+
+# Données locales / bases
 *.db
 *.sqlite
 *.sqlite3
+data/
 
-# Environnement
+# Environnement / secrets
 .env
 
 # Éditeurs / OS

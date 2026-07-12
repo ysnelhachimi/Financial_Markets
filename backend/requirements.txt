@@ -8,6 +8,5 @@ PyJWT>=2.8
 python-multipart>=0.0.9
 email-validator>=2.1
 pandas>=1.5
-# Le package `kanyon` (couche données/pricer) est installé depuis la racine du dépôt :
-#   pip install -e ..
-# Pour PostgreSQL : psycopg2-binary>=2.9
+# Le package `kanyon` (couche données/pricer) est installé depuis le monorepo :
+#   pip install -e "packages/kanyon[postgres]"
