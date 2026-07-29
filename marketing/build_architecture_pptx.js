@@ -56,7 +56,7 @@ s.addText("Schéma de l'application", {
 s.addText("Plateforme SaaS de données et de pricing des marchés financiers marocains — architecture technique.", {
   x: 1.2, y: 3.9, w: 10.5, h: 0.5, margin: 0, fontFace: SANS, fontSize: 15, color: "8FB3AC",
 });
-s.addText("Bourse de Casablanca · BKAM · AMMC · paiement CMI (MAD)", {
+s.addText("Bourse de Casablanca · BKAM · AMMC · dirham (MAD)", {
   x: 1.2, y: 6.5, w: 10, h: 0.4, margin: 0, fontFace: SANS, fontSize: 12, color: GOLD,
 });
 
@@ -99,8 +99,8 @@ arrow(s, X(3) + NW, midY, X(4), midY);
 const DY = 5.15, DH = 1.15;
 node(s, X(1), DY, NW, DH, "PostgreSQL",
   ["Données de marché historisées"], { fill: "EAF3EF", border: JADE_BR, titleColor: JADE });
-node(s, X(2), DY, NW, DH, "CMI / PayZone",
-  ["Paiement récurrent en MAD"], { fill: "F6EFDD", border: "E0CF9B", titleColor: GOLD });
+node(s, X(2), DY, NW, DH, "Abonnements",
+  ["Facturation en dirham (MAD)"], { fill: "F6EFDD", border: "E0CF9B", titleColor: GOLD });
 
 // vertical connectors
 s.addShape(p.ShapeType.line, { x: X(1) + NW / 2, y: NY + NH, w: 0, h: DY - (NY + NH),
