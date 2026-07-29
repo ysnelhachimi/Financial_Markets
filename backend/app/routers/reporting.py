@@ -10,7 +10,7 @@ from collections import defaultdict
 from typing import Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel
 
 from app.deps import active_subscription
@@ -51,9 +51,8 @@ class FactsheetInput(BaseModel):
     notes: str = ""
 
 
-@router.post("/factsheet", response_class=HTMLResponse)
-def factsheet(payload: FactsheetInput) -> HTMLResponse:
-    """Génère la fiche HTML imprimable d'un portefeuille."""
+def _build_context(payload: FactsheetInput):
+    """Assemble le contexte de fiche (allocation + stress + conformité)."""
     from kanyon.portfolio import (
         ComplianceLimits,
         DEFAULT_SCENARIOS,
@@ -61,7 +60,7 @@ def factsheet(payload: FactsheetInput) -> HTMLResponse:
         check_compliance,
         run_scenarios,
     )
-    from kanyon.reporting import FactsheetContext, render_factsheet_html
+    from kanyon.reporting import FactsheetContext
 
     weights = {h.ticker: h.weight for h in payload.holdings}
 
@@ -92,7 +91,7 @@ def factsheet(payload: FactsheetInput) -> HTMLResponse:
     )
     compliance = check_compliance(holdings, limits).as_dict()
 
-    ctx = FactsheetContext(
+    return FactsheetContext(
         fund_name=payload.fund_name,
         as_of=payload.as_of,
         category=payload.category,
@@ -103,4 +102,25 @@ def factsheet(payload: FactsheetInput) -> HTMLResponse:
         compliance=compliance,
         notes=payload.notes,
     )
-    return HTMLResponse(content=render_factsheet_html(ctx))
+
+
+@router.post("/factsheet", response_class=HTMLResponse)
+def factsheet(payload: FactsheetInput) -> HTMLResponse:
+    """Génère la fiche HTML imprimable d'un portefeuille."""
+    from kanyon.reporting import render_factsheet_html
+
+    return HTMLResponse(content=render_factsheet_html(_build_context(payload)))
+
+
+@router.post("/factsheet.pdf")
+def factsheet_pdf(payload: FactsheetInput) -> Response:
+    """Génère la fiche de portefeuille en **PDF** (généré côté serveur)."""
+    from kanyon.reporting import render_factsheet_pdf
+
+    pdf_bytes = render_factsheet_pdf(_build_context(payload))
+    filename = f"factsheet-{payload.fund_name}.pdf".replace(" ", "_")
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

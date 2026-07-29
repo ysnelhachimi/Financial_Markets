@@ -72,6 +72,24 @@ export const api = {
     }
     return resp.text();
   },
+  factsheetPdf: async (body) => {
+    const headers = { "Content-Type": "application/json" };
+    const token = getToken();
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const resp = await fetch("/api/reporting/factsheet.pdf", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const err = new Error("Erreur de génération du PDF");
+      err.status = resp.status;
+      throw err;
+    }
+    return resp.blob();
+  },
+  optimizeEquities: (debut, fin, objective) =>
+    request(`/portfolio/equities/optimize?debut=${debut}&fin=${fin}&objective=${objective}`),
   strategies: () => request("/portfolio/strategies"),
   optimize: (body) => request("/portfolio/optimize", { method: "POST", body }),
   stress: (body) => request("/portfolio/stress", { method: "POST", body }),

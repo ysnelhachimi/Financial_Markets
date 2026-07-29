@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional, Tuple
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from app.deps import active_subscription
@@ -143,6 +143,35 @@ def stress_endpoint(payload: StressInput) -> list[dict]:
     else:
         scenarios = DEFAULT_SCENARIOS
     return run_scenarios(payload.weights, payload.durations, payload.betas, scenarios)
+
+
+@router.get("/equities/optimize")
+def optimize_equities_endpoint(
+    debut: str = Query(..., description="Début de période (YYYY-MM-DD)"),
+    fin: str = Query(..., description="Fin de période (YYYY-MM-DD)"),
+    objective: str = Query("max_sharpe"),
+) -> dict:
+    """Optimise un portefeuille sur l'univers actions MASI **réel** de la période."""
+    from kanyon.portfolio.service import optimize_equities
+
+    try:
+        return optimize_equities(debut, fin, objective=objective)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
+
+
+@router.get("/equities/backtest")
+def backtest_equities_endpoint(
+    debut: str = Query(...),
+    fin: str = Query(...),
+) -> dict:
+    """Backteste une allocation équipondérée sur l'univers actions MASI **réel**."""
+    from kanyon.portfolio.service import backtest_equities
+
+    try:
+        return backtest_equities(debut, fin)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc))
 
 
 @router.post("/compliance")

@@ -31,3 +31,18 @@ def test_factsheet_html(auth_client):
     assert "OPCVM Oblig Maroc" in body
     assert "stress testing" in body.lower()
     assert "Conformité" in body
+
+
+def test_factsheet_pdf(auth_client):
+    auth_client.post("/api/billing/subscribe", json={"plan_code": "free"})
+    r = auth_client.post(
+        "/api/reporting/factsheet.pdf",
+        json={
+            "fund_name": "OPCVM Test",
+            "as_of": "2021-07-01",
+            "holdings": [{"ticker": "BDT10", "issuer": "TRESOR", "weight": 1.0, "sensitivity": 8.0}],
+        },
+    )
+    assert r.status_code == 200
+    assert r.headers["content-type"] == "application/pdf"
+    assert r.content[:5] == b"%PDF-"

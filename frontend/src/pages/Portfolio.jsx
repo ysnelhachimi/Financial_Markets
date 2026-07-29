@@ -68,27 +68,41 @@ export default function Portfolio() {
     if (res) setCompliance(res);
   };
 
+  const factsheetPayload = () => ({
+    fund_name: "Portefeuille Kanyon",
+    as_of: new Date().toISOString().slice(0, 10),
+    category: "Diversifié",
+    holdings: holdings.map((h) => ({
+      ticker: h.ticker,
+      issuer: h.issuer,
+      weight: h.weight / 100,
+      asset_class: "obligataire",
+    })),
+    metrics: optResult
+      ? { volatility: optResult.volatility, sharpe: optResult.sharpe, total_return: optResult.expected_return }
+      : {},
+  });
+
   const generateFactsheet = async () => {
-    const html = await run(() =>
-      api.factsheetHtml({
-        fund_name: "Portefeuille Kanyon",
-        as_of: new Date().toISOString().slice(0, 10),
-        category: "Diversifié",
-        holdings: holdings.map((h) => ({
-          ticker: h.ticker,
-          issuer: h.issuer,
-          weight: h.weight / 100,
-          asset_class: "obligataire",
-        })),
-        metrics: optResult
-          ? { volatility: optResult.volatility, sharpe: optResult.sharpe, total_return: optResult.expected_return }
-          : {},
-      })
-    );
-    if (html) {
-      const url = URL.createObjectURL(new Blob([html], { type: "text/html" }));
-      window.open(url, "_blank");
+    const html = await run(() => api.factsheetHtml(factsheetPayload()));
+    if (html) window.open(URL.createObjectURL(new Blob([html], { type: "text/html" })), "_blank");
+  };
+
+  const downloadPdf = async () => {
+    const blob = await run(() => api.factsheetPdf(factsheetPayload()));
+    if (blob) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "factsheet-kanyon.pdf";
+      a.click();
     }
+  };
+
+  const [liveRange, setLiveRange] = useState({ debut: "2021-04-06", fin: "2021-07-01" });
+  const [liveResult, setLiveResult] = useState(null);
+  const optimizeLive = async () => {
+    const res = await run(() => api.optimizeEquities(liveRange.debut, liveRange.fin, "max_sharpe"));
+    if (res) setLiveResult(res);
   };
 
   const updateAsset = (i, field) => (e) => {
@@ -111,9 +125,39 @@ export default function Portfolio() {
       )}
       {error && <p className="error">{error}</p>}
 
-      {/* Optimisation */}
+      {/* Optimisation sur données réelles MASI */}
       <div className="card">
-        <h3>Optimisation d'allocation (actions)</h3>
+        <h3>Optimisation sur données réelles (Bourse de Casablanca)</h3>
+        <p className="muted">Univers actions MASI en base, estimation rendement/risque sur la période, max-Sharpe.</p>
+        <div className="toolbar">
+          <input type="date" value={liveRange.debut} onChange={(e) => setLiveRange({ ...liveRange, debut: e.target.value })} />
+          <input type="date" value={liveRange.fin} onChange={(e) => setLiveRange({ ...liveRange, fin: e.target.value })} />
+          <button className="btn btn-small" onClick={optimizeLive}>Optimiser (données réelles)</button>
+        </div>
+        {liveResult && (
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>Valeur</th><th>Poids optimal</th></tr></thead>
+              <tbody>
+                {Object.entries(liveResult.result.weights)
+                  .filter(([, w]) => w > 0.001)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([t, w]) => (
+                    <tr key={t}><td>{t}</td><td>{(w * 100).toFixed(1)} %</td></tr>
+                  ))}
+              </tbody>
+            </table>
+            <p className="muted">
+              {liveResult.observations} séances · Rendement {(liveResult.result.expected_return * 100).toFixed(1)} % ·
+              Volatilité {(liveResult.result.volatility * 100).toFixed(1)} % · Sharpe {liveResult.result.sharpe.toFixed(2)}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Optimisation (saisie manuelle) */}
+      <div className="card">
+        <h3>Optimisation d'allocation (saisie manuelle)</h3>
         <div className="table-wrap">
           <table>
             <thead><tr><th>Valeur</th><th>Rendement att. (%)</th><th>Volatilité (%)</th><th>Poids optimal</th></tr></thead>
@@ -188,7 +232,8 @@ export default function Portfolio() {
         </div>
         <div className="toolbar">
           <button className="btn btn-small" onClick={runCompliance}>Contrôler</button>
-          <button className="btn btn-small btn-outline" onClick={generateFactsheet}>Générer la fiche (PDF imprimable)</button>
+          <button className="btn btn-small btn-outline" onClick={generateFactsheet}>Fiche HTML</button>
+          <button className="btn btn-small btn-outline" onClick={downloadPdf}>Télécharger le PDF</button>
         </div>
         {compliance && (
           <div>

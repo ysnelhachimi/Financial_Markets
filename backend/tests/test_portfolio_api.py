@@ -53,6 +53,13 @@ def test_compliance_breach(auth_client):
     assert r.json()["compliant"] is False
 
 
+def test_equities_optimize_sans_donnees(auth_client):
+    _subscribe_free(auth_client)
+    # Base de marché vide en test -> 404.
+    r = auth_client.get("/api/portfolio/equities/optimize", params={"debut": "2021-01-01", "fin": "2021-12-31"})
+    assert r.status_code == 404
+
+
 def test_strategies_liste(auth_client):
     _subscribe_free(auth_client)
     r = auth_client.get("/api/portfolio/strategies")

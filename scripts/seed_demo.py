@@ -11,9 +11,11 @@ from __future__ import annotations
 
 import datetime as dt
 
+import numpy as np
+
 from kanyon.db.base import get_engine, get_session, Base
 from kanyon.db import models
-from kanyon.db.models import BkamCourbe, LexActions, LexIndiceAct, MasiIndices, Mcl
+from kanyon.db.models import BkamCourbe, LexActions, LexIndiceAct, MasiIndices, MasiVolume, Mcl
 
 DATE_MARCHE = dt.date(2021, 7, 1)
 
@@ -59,6 +61,44 @@ INDICES = [
     (dt.date(2021, 7, 1), "MASI", 12145.2, "0.28"),
 ]
 
+# Séries de cours quotidiens (démo) pour l'optimisation/backtest sur données réelles.
+# (nom, cours de départ, dérive quotidienne, volatilité quotidienne)
+VALEURS_DEMO = [
+    ("ITISSALAT AL-MAGHRIB", 135.0, 0.0004, 0.011),
+    ("ATTIJARIWAFA BANK", 480.0, 0.0006, 0.015),
+    ("BCP", 265.0, 0.0003, 0.013),
+    ("COSUMAR", 235.0, 0.0002, 0.009),
+    ("LAFARGEHOLCIM MAR", 2100.0, 0.0005, 0.017),
+]
+VOLUME_START = dt.date(2021, 4, 6)
+VOLUME_DAYS = 60
+
+
+def _generate_volume_rows():
+    """Génère des séries de cours quotidiens réalistes pour les valeurs de démo."""
+    rng = np.random.default_rng(42)
+    # Jours ouvrés (lun-ven).
+    dates = []
+    d = VOLUME_START
+    while len(dates) < VOLUME_DAYS:
+        if d.weekday() < 5:
+            dates.append(d)
+        d += dt.timedelta(days=1)
+
+    rows = []
+    for name, start, drift, vol in VALEURS_DEMO:
+        price = start
+        for seance in dates:
+            price *= 1 + rng.normal(drift, vol)
+            rows.append(
+                MasiVolume(
+                    seance=seance, name=name, cours_cloture=round(price, 2),
+                    cours_ajuste=round(price, 2), evolution=0.0,
+                    quantite_echange=float(rng.integers(1000, 50000)), volume=round(price * 1000, 2),
+                )
+            )
+    return rows
+
 
 def seed() -> None:
     Base.metadata.create_all(bind=get_engine())
@@ -100,11 +140,16 @@ def seed() -> None:
                 )
             )
 
+        if session.query(MasiVolume).count() == 0:
+            for row in _generate_volume_rows():
+                session.add(row)
+
         session.commit()
         print("Données de démonstration insérées.")
         print(f"  Courbe : {session.query(BkamCourbe).count()} points au {DATE_MARCHE}")
         print(f"  Titres : {session.query(Mcl).count()}")
         print(f"  Indices: {session.query(MasiIndices).count()}")
+        print(f"  Volumes actions: {session.query(MasiVolume).count()} lignes")
     finally:
         session.close()
 

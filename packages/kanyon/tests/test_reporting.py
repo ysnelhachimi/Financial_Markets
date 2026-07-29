@@ -1,5 +1,5 @@
-"""Tests du reporting (factsheet HTML)."""
-from kanyon.reporting import FactsheetContext, render_factsheet_html
+"""Tests du reporting (factsheet HTML et PDF)."""
+from kanyon.reporting import FactsheetContext, render_factsheet_html, render_factsheet_pdf
 
 
 def _ctx():
@@ -36,3 +36,10 @@ def test_render_sans_donnees_optionnelles():
     html = render_factsheet_html(ctx)
     assert "Vide" in html
     assert "Non disponible" in html  # sections vides gérées
+
+
+def test_render_pdf():
+    pdf = render_factsheet_pdf(_ctx())
+    assert isinstance(pdf, (bytes, bytearray))
+    assert pdf[:5] == b"%PDF-"  # en-tête PDF valide
+    assert len(pdf) > 500

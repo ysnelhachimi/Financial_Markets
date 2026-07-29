@@ -225,13 +225,21 @@ derrière le mur payant, et par module dans le frontend :
 
 ```
 packages/kanyon/kanyon/portfolio/
-├── universe.py       Univers investissable (actions MASI, titres obligataires)
+├── universe.py       Univers investissable RÉEL (prix MASI, sensibilités obligataires depuis la base)
+├── service.py        Orchestration DB : optimize_equities / backtest_equities
 ├── construction.py   Optimisation (Markowitz, min-variance, risk-parity, cible)
 ├── strategies.py     Règles par catégorie OPCVM (Actions/Diversifié/OMLT/OCT/Monétaire)
 ├── backtest.py       Rejeu historique + métriques
 ├── stress.py         Chocs taux/actions + VaR/CVaR stressées
 └── compliance.py     Ratios prudentiels AMMC (division, emprise, sensibilité, liquidité)
+packages/kanyon/kanyon/reporting/
+├── factsheet.py      Fiche HTML imprimable
+└── pdf.py            Fiche PDF (généré côté serveur, fpdf2)
 ```
+
+Le moteur de portefeuille est **câblé sur les données réelles** : `optimize_equities`
+et `backtest_equities` construisent l'univers depuis `masi_volume`. Endpoints :
+`GET /api/portfolio/equities/{optimize,backtest}` et `POST /api/reporting/factsheet.pdf`.
 
 - `kanyon.analytics` (M7) fournit déjà les ratios de risque réutilisés par le
   backtest et le stress.
