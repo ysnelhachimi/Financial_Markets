@@ -1,7 +1,7 @@
 const pptxgen = require("pptxgenjs");
 const p = new pptxgen();
 p.layout = "LAYOUT_WIDE"; // 13.33 x 7.5
-p.author = "Kanyon Markets";
+p.author = "QCG Markets";
 
 // Palette
 const PETROL = "0E1E22", INK = "0C1A1C", MUTED = "5C6F70", LINE = "DBE6E4";
@@ -47,7 +47,7 @@ let s = p.addSlide();
 s.background = { color: PETROL };
 s.addShape(p.ShapeType.rect, { x: 0.9, y: 2.35, w: 0.16, h: 0.16, fill: { color: JADE_BR } });
 s.addText([
-  { text: "Kanyon", options: { color: WHITE } },
+  { text: "QCG ", options: { color: WHITE } },
   { text: "Markets", options: { color: JADE_BR } },
 ], { x: 1.2, y: 2.15, w: 11, h: 0.7, margin: 0, fontFace: HEAD, fontSize: 40, bold: true });
 s.addText("Schéma de l'application", {
@@ -184,5 +184,5 @@ s.addText("Chaque étape est un module facturable — la conformité AMMC est le
   italic: true, color: GOLD,
 });
 
-p.writeFile({ fileName: "/home/user/Financial_Markets/marketing/kanyon-architecture.pptx" })
+p.writeFile({ fileName: "/home/user/Financial_Markets/marketing/QCG_Markets-schema.pptx" })
   .then(f => console.log("OK:", f));
