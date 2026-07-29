@@ -152,21 +152,6 @@
   table.dt th { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
   table.dt td.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
-  /* pricing */
-  .plans { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
-  @media (max-width: 820px){ .plans { grid-template-columns: 1fr; } }
-  .plan { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; }
-  .plan.feat { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
-  .plan .name { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-  .plan .price { font-size: 30px; font-weight: 800; margin: 8px 0 2px; }
-  .plan .price small { font-size: 13px; color: var(--muted); font-weight: 500; }
-  .plan ul { list-style: none; padding: 0; margin: 14px 0 20px; display: flex; flex-direction: column; gap: 9px; font-size: 14px; }
-  .plan li { color: var(--muted); padding-left: 20px; position: relative; }
-  .plan li::before { content: "→"; position: absolute; left: 0; color: var(--accent); }
-  .plan .btn { margin-top: auto; text-align: center; }
-  .plan .badge { align-self: flex-start; font-family: var(--mono); font-size: 11px; color: #04110c; background: var(--gold);
-    padding: 2px 8px; border-radius: 999px; margin-bottom: 8px; }
-
   .cta-final { text-align: center; padding: 66px 22px; background:
       radial-gradient(120% 140% at 50% 0%, var(--accent-soft), transparent 60%); border-radius: 20px;
     border: 1px solid var(--line); margin: 40px 0; }
@@ -190,7 +175,6 @@
       <a href="#solution">Solution</a>
       <a href="#modules">Modules</a>
       <a href="#demo">Démo</a>
-      <a href="#tarifs">Tarifs</a>
       <button class="theme-toggle" id="themeBtn" aria-label="Changer le thème">◐ thème</button>
       <a href="#contact" class="btn small cta">Demander une démo</a>
     </nav>
@@ -376,38 +360,6 @@
       <p style="font-size:12.5px;color:var(--muted);margin-top:12px">Données de démonstration.
         La plateforme exécute ces mêmes calculs sur les données réelles de la Bourse de Casablanca
         et de BKAM, derrière authentification et abonnement.</p>
-    </div>
-  </section>
-
-  <!-- TARIFS -->
-  <section id="tarifs">
-    <div class="wrap">
-      <div class="sec-head">
-        <div class="eyebrow">Abonnement mensuel · en dirham</div>
-        <h2>Un prix local, une valeur institutionnelle</h2>
-        <p>Une fraction du coût des solutions internationales, pensé pour le marché marocain.</p>
-      </div>
-      <div class="plans">
-        <div class="plan">
-          <div class="name">Découverte</div>
-          <div class="price">Gratuit</div>
-          <ul><li>Indices MASI principaux</li><li>50 requêtes / jour</li><li>Accès tableau de bord</li></ul>
-          <a href="#contact" class="btn ghost">Commencer</a>
-        </div>
-        <div class="plan feat">
-          <div class="badge">Le plus choisi</div>
-          <div class="name">Premium</div>
-          <div class="price">199 <small>MAD / mois</small></div>
-          <ul><li>Données complètes + courbe BKAM</li><li>Pricer obligataire</li><li>Ratios de gestion &amp; risque</li><li>5 000 requêtes / jour</li></ul>
-          <a href="#contact" class="btn">S'abonner</a>
-        </div>
-        <div class="plan">
-          <div class="name">Pro / Entreprise</div>
-          <div class="price">499 <small>MAD / mois</small></div>
-          <ul><li>Construction &amp; backtest</li><li>Stress testing</li><li>Conformité AMMC + factsheets</li><li>API &amp; multi-utilisateurs</li></ul>
-          <a href="#contact" class="btn ghost">Demander un devis</a>
-        </div>
-      </div>
     </div>
   </section>
 
